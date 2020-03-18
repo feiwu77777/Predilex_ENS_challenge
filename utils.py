@@ -40,8 +40,31 @@ def clean1(raw_text):
     text = raw_text.replace('\xa0', ' ').replace('\n', ' ').lower()
 
     text = re.sub(r'x\.\.\.', 'xxx', text)
-    text = re.sub(r'y\.\.\.', 'yyy', text)    
+    text = re.sub(r'y\.\.\.', 'yyy', text)
+
+    #enlever les répétitions de '.' et '-'   
+    text = re.sub(r"[.]{2,}", "", text)
+    text = re.sub(r"[-]{2,}", "", text)
+
+    # reformatter les dates 12.12.2002 en 12/12/2002
+    text = re.sub(r"(\d{1,2})\.(\d{1,2})\.(\d{2,4})", r"\1/\2/\3", text)
+    text = re.sub(r"(\d{1,2})\. (\d{1,2})\. (\d{2,4})", r"\1/\2/\3", text)
+
+    # reformatter les a.r.t.p. en artp et 600.000 en 6000000
+    r = [(r"(\d{1,3})\.(\d{3})", r"\1\2"),
+        (r"(\d{4,6})\.(\d{3})", r"\1\2"),
+        (r"(\d{7,9})\.(\d{3})", r"\1\2"),
+        (r"(\d{10,12})\.(\d{3})", r"\1\2"),
+        (r"(\w)\.(\w)\.(\w).(\w).(\w).(\w).", r"\1\2\3\4\5\6"),
+        (r"(\w)\.(\w)\.(\w).(\w).(\w).", r"\1\2\3\4"),
+        (r"(\w)\.(\w)\.(\w).(\w).", r"\1\2\3\4"),
+        (r"(\w)\.(\w)\.(\w).", r"\1\2\3"),
+        (r"(\w)\.(\w)\.", r"\1\2")]
     
+    for pair in r:
+        text = re.sub(pair[0], pair[1], text)
+    
+    # enlever double espace
     text = re.sub(r'\s+', ' ', text, flags=re.I)
 
     return text
