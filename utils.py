@@ -5,6 +5,41 @@ import matplotlib.pyplot as plt
 from xgboost import XGBClassifier
 import numpy as np
 
+
+def clean1(raw_text):    
+    text = raw_text.replace('\xa0', ' ').replace('\n', ' ').lower()
+
+    text = re.sub(r'x\.\.\.', 'xxx', text)
+    text = re.sub(r'y\.\.\.', 'yyy', text)
+
+    #strip repetition of '.' and '-'   
+    text = re.sub(r"[.]{2,}", "", text)
+    text = re.sub(r"[-]{2,}", "", text)
+
+    # formate dates 12.12.2002 to 12/12/2002
+    text = re.sub(r"(\d{1,2})\.(\d{1,2})\.(\d{2,4})", r"\1/\2/\3", text)
+    text = re.sub(r"(\d{1,2})\. (\d{1,2})\. (\d{2,4})", r"\1/\2/\3", text)
+
+    # formate words such as a.r.t.p. to artp or 600.000 to 6000000
+    r = [(r"(\d{1,3})\.(\d{3})", r"\1\2"),
+        (r"(\d{4,6})\.(\d{3})", r"\1\2"),
+        (r"(\d{7,9})\.(\d{3})", r"\1\2"),
+        (r"(\d{10,12})\.(\d{3})", r"\1\2"),
+        (r"(\w)\.(\w)\.(\w).(\w).(\w).(\w).", r"\1\2\3\4\5\6"),
+        (r"(\w)\.(\w)\.(\w).(\w).(\w).", r"\1\2\3\4"),
+        (r"(\w)\.(\w)\.(\w).(\w).", r"\1\2\3\4"),
+        (r"(\w)\.(\w)\.(\w).", r"\1\2\3"),
+        (r"(\w)\.(\w)\.", r"\1\2")]
+    
+    for pair in r:
+        text = re.sub(pair[0], pair[1], text)
+    
+    # strip double space
+    text = re.sub(r'\s+', ' ', text, flags=re.I)
+
+    return text
+
+
 def clean2(raw_text, lemmatizer, stemmer, stop_words = []):
     # remove special characters such as the "'" in "it's".
     text = re.sub(r'\W', ' ', raw_text)
@@ -36,39 +71,20 @@ def clean2(raw_text, lemmatizer, stemmer, stop_words = []):
     
     return text
 
-def clean1(raw_text):    
-    text = raw_text.replace('\xa0', ' ').replace('\n', ' ').lower()
 
-    text = re.sub(r'x\.\.\.', 'xxx', text)
-    text = re.sub(r'y\.\.\.', 'yyy', text)
-
-    #enlever les répétitions de '.' et '-'   
-    text = re.sub(r"[.]{2,}", "", text)
-    text = re.sub(r"[-]{2,}", "", text)
-
-    # reformatter les dates 12.12.2002 en 12/12/2002
-    text = re.sub(r"(\d{1,2})\.(\d{1,2})\.(\d{2,4})", r"\1/\2/\3", text)
-    text = re.sub(r"(\d{1,2})\. (\d{1,2})\. (\d{2,4})", r"\1/\2/\3", text)
-
-    # reformatter les a.r.t.p. en artp et 600.000 en 6000000
-    r = [(r"(\d{1,3})\.(\d{3})", r"\1\2"),
-        (r"(\d{4,6})\.(\d{3})", r"\1\2"),
-        (r"(\d{7,9})\.(\d{3})", r"\1\2"),
-        (r"(\d{10,12})\.(\d{3})", r"\1\2"),
-        (r"(\w)\.(\w)\.(\w).(\w).(\w).(\w).", r"\1\2\3\4\5\6"),
-        (r"(\w)\.(\w)\.(\w).(\w).(\w).", r"\1\2\3\4"),
-        (r"(\w)\.(\w)\.(\w).(\w).", r"\1\2\3\4"),
-        (r"(\w)\.(\w)\.(\w).", r"\1\2\3"),
-        (r"(\w)\.(\w)\.", r"\1\2")]
-    
-    for pair in r:
-        text = re.sub(pair[0], pair[1], text)
-    
-    # enlever double espace
-    text = re.sub(r'\s+', ' ', text, flags=re.I)
-
-    return text
-
+def format_date(day:str, month:str, year:str):
+    if len(day) == 1:
+        day = '0' + day
+    elif not day.isnumeric():
+        day = '01'
+    if not month.isnumeric():
+        month = months_str_to_int[month]
+    elif len(month) == 1:
+        month = '0' + month
+    if len(year) == 2:
+        if int(year) < 30: year = '20' + year
+        else: year = '19' + year
+    return day, month, year
 
 def find_opti_thresh(y, proba, plot = True):
     ###
