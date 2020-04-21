@@ -5,9 +5,9 @@ This project contains code for an online [Machine Learning Competition](https://
 The goal of the challenge is to leverage the resources of Machine Learning to create a system that will be able to automatically retrieve the gender of the victim, the date of accident and the date of consolidation from these texts.
 
 ***Summary***
-1. Data Description
-2. Our Approach
-3. Results
+1. [Data Description](https://github.com/feiwu77777/Predilex_ENS_challenge#1-data-description)
+2. [Our Approach](https://github.com/feiwu77777/Predilex_ENS_challenge#2-our-approach)
+3. [Results](https://github.com/feiwu77777/Predilex_ENS_challenge#3-results)
 
 ## 1. Data Description
 
